@@ -9,13 +9,13 @@ def main():
     load_dotenv()    
     bot.run(os.getenv("TOKEN"))
 
-@bot.command(description="Pin a message")
+@bot.command(description="Pin a message. Argument: url of message to be pinned")
 async def pin(ctx):
     message = await get_message(ctx)
     await message.pin()
     await ctx.send("Pinned!")
 
-@bot.command(description="Unpin a message")
+@bot.command(description="Unpin a message. Argument: url of message to be unpinned")
 async def unpin(ctx):
     message = await get_message(ctx)
     await message.unpin()
@@ -26,7 +26,6 @@ async def get_message(ctx):
 
     # Check if url is from Discord
     if message_url[:23] == "https://discordapp.com/":
-        print(message_url)
         id = message_url[-18:]
         return await ctx.message.channel.fetch_message(id)
 
