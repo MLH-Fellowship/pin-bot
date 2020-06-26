@@ -7,16 +7,14 @@ Discord bot to allow Fellows to pin messages!
 Replace `"MY_TOKEN"` with the token generated in the Discord Developer Portal.
 
 ```
-virtualenv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+docker build -t pin-bot .
 cat TOKEN="MY_TOKEN" > .env
 ```
 
 ## Run
 
 ```
-python -m bot
+docker run --rm -d -p 443:443 pin-bot
 ```
 
 ## Usage
