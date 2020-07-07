@@ -28,7 +28,7 @@ RUN \
     /root/.cache \
     /tmp/*
 
-COPY src /app
+COPY app /app
 
 ADD root /
 # Init

@@ -2,7 +2,7 @@
 version: '3.8'
 
 services:
-  session_bot:
+  pin_bot:
     build: .
     env_file: .env
 
