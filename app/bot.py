@@ -9,6 +9,13 @@ def main():
     load_dotenv()    
     bot.run(os.getenv("TOKEN"))
 
+@bot.event
+async def on_ready():
+    print("Ready!")
+    activity = discord.Activity(name="for pinned messages",
+                                      type=discord.ActivityType.watching)
+    await bot.change_presence(status=discord.Status.online, activity=activity)
+
 @bot.command(description="Pin a message. Argument: URL of message to be pinned")
 async def pin(ctx):
     message = await get_message(ctx)
