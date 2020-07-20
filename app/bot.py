@@ -20,7 +20,10 @@ async def on_ready():
 async def pin(ctx):
     message = await get_message(ctx)
     try:
-        await message.pin()
+        if message.pinned == True:
+            await ctx.send("Message is already pinned")
+        else:
+            await message.pin()
     except:
         await ctx.send("Something went wrong. Make sure your URL is correct and valid.")
 
@@ -28,8 +31,11 @@ async def pin(ctx):
 async def unpin(ctx):
     message = await get_message(ctx)
     try:
-        await message.unpin()
-        await ctx.send("Unpinned!")
+        if message.pinned == False:
+            await ctx.send("Message is not pinned")
+        else:
+            await message.unpin()
+            await ctx.send("Unpinned!")
     except:
         await ctx.send("Something went wrong. Make sure your URL is correct and valid.")
 
@@ -39,8 +45,11 @@ async def get_message(ctx):
     # Check if url is from Discord
     if message_url[:23] == "https://discordapp.com/":
         try:
-            id = message_url[-18:]
-            return await ctx.message.channel.fetch_message(id)
+            ids = message_url.split('/')
+            if len(ids)  == 7: 
+                return await ctx.message.channel.fetch_message(ids[-1])
+            else:
+                return None
         except:
             return None
     else:
