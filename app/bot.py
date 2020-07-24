@@ -1,4 +1,5 @@
 import os
+import sys
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -6,7 +7,8 @@ from dotenv import load_dotenv
 bot = commands.Bot(command_prefix='/')
 
 def main():
-    load_dotenv()    
+    load_dotenv()
+    sys.stdout.flush()
     bot.run(os.getenv("TOKEN"))
 
 @bot.event
