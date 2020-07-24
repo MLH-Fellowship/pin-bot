@@ -2,6 +2,8 @@
 
 Discord bot to allow Fellows to pin messages!
 
+![Build and Deploy to Google Compute Engine](https://github.com/MLH-Fellowship/pin-bot/workflows/Build%20and%20Deploy%20to%20Google%20Compute%20Engine/badge.svg)
+
 ## Setup
 
 Replace `"MY_TOKEN"` with the token generated in the Discord Developer Portal.
