@@ -31,5 +31,7 @@ RUN \
 COPY app /app
 
 ADD root /
+ARG TOKEN
+ENV TOKEN=${TOKEN}
 # Init
 ENTRYPOINT [ "/init" ]
