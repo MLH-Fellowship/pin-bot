@@ -7,8 +7,9 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GCE_PROJECT }}
-  GCE_INSTANCE: discord-bot-vm  # TODO: update to instance name
-  GCE_INSTANCE_ZONE: europe-west2-c	 
+  GCE_INSTANCE: pin-bot
+  GCE_INSTANCE_ZONE: europe-west2-c
+  TOKEN: ${{ secrets.TOKEN }}	 
 
 jobs:
   setup-build-publish-deploy:
