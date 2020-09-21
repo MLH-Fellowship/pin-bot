@@ -14,7 +14,7 @@ def main():
 @bot.event
 async def on_ready():
     print("Ready!")
-    activity = discord.Activity(name="for pinned messages",
+    activity = discord.Activity(name="/pin {url} to pin a message!",
                                       type=discord.ActivityType.watching)
     await bot.change_presence(status=discord.Status.online, activity=activity)
 
