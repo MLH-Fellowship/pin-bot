@@ -45,7 +45,7 @@ async def get_message(ctx):
     message_url = ctx.message.clean_content.split(' ')[1]
 
     # Check if url is from Discord
-    if message_url[:23] == "https://discordapp.com/":
+    if message_url[:23] == "https://discordapp.com/" or message_url[:20] == "https://discord.com/":
         try:
             ids = message_url.split('/')
             if len(ids)  == 7: 
