@@ -26,7 +26,7 @@ async def pin(ctx):
             await ctx.send("Message is already pinned")
         else:
             await message.pin()
-    except:
+    except Exception:
         await ctx.send("Something went wrong. Make sure your URL is correct and valid.")
 
 @bot.command(description="Unpin a message. Argument: URL of message to be unpinned")
@@ -52,7 +52,7 @@ async def get_message(ctx):
                 return await ctx.message.channel.fetch_message(ids[-1])
             else:
                 return None
-        except:
+        except Exception:
             return None
     else:
         return None        
