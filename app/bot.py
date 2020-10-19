@@ -11,6 +11,25 @@ def main():
     sys.stdout.flush()
     bot.run(os.getenv("TOKEN"))
 
+
+@bot.event
+async def on_raw_reaction_add(payload):
+    channel = await bot.fetch_channel(payload.channel_id)
+    message = await channel.fetch_message(payload.message_id)
+
+    if not message.pinned and payload.emoji.name == '📌':
+        await message.pin()
+
+
+@bot.event
+async def on_raw_reaction_remove(payload):
+    channel = await bot.fetch_channel(payload.channel_id)
+    message = await channel.fetch_message(payload.message_id)
+
+    if payload.emoji.name == '📌' and message.pinned:
+        await message.unpin()
+
+
 @bot.event
 async def on_ready():
     print("Ready!")
