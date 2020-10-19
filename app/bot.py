@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 
 bot = commands.Bot(command_prefix='/')
 
+
 def main():
     load_dotenv()
     sys.stdout.flush()
@@ -34,8 +35,9 @@ async def on_raw_reaction_remove(payload):
 async def on_ready():
     print("Ready!")
     activity = discord.Activity(name="/pin {url} to pin a message!",
-                                      type=discord.ActivityType.watching)
+                                type=discord.ActivityType.watching)
     await bot.change_presence(status=discord.Status.online, activity=activity)
+
 
 @bot.command(description="Pin a message. Argument: URL of message to be pinned")
 async def pin(ctx):
@@ -47,6 +49,7 @@ async def pin(ctx):
             await message.pin()
     except Exception:
         await ctx.send("Something went wrong. Make sure your URL is correct and valid.")
+
 
 @bot.command(description="Unpin a message. Argument: URL of message to be unpinned")
 async def unpin(ctx):
@@ -60,6 +63,7 @@ async def unpin(ctx):
     except:
         await ctx.send("Something went wrong. Make sure your URL is correct and valid.")
 
+
 async def get_message(ctx):
     message_url = ctx.message.clean_content.split(' ')[1]
 
@@ -67,14 +71,14 @@ async def get_message(ctx):
     if message_url[:23] == "https://discordapp.com/" or message_url[:20] == "https://discord.com/":
         try:
             ids = message_url.split('/')
-            if len(ids)  == 7: 
+            if len(ids) == 7:
                 return await ctx.message.channel.fetch_message(ids[-1])
             else:
                 return None
         except Exception:
             return None
     else:
-        return None        
+        return None
 
 if __name__ == '__main__':
     main()
