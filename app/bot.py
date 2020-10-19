@@ -11,9 +11,44 @@ prefix_map = {
     reaction_emoji: ''
 }
 
+ingore_message_reactions_once = {
+    'add': set(),
+    'remove': set(),
+}
+
 
 def select_command_prefix(_bot, message):
     return prefix_map.get(message.clean_content[0], '/')
+
+
+def is_payload_from_bot(payload):
+    if not payload.member:
+        return True
+    else:
+        return payload.member.bot
+
+
+def can_ignore_reaction(payload, kind):
+    is_bot = is_payload_from_bot(payload)
+    blacklist = ingore_message_reactions_once[kind]
+
+    if is_bot and payload.message_id in blacklist:
+        blacklist.remove(payload.message_id)
+        return True
+    return False
+
+
+def get_reactions_from_message(message):
+    for reaction in message.reactions:
+        if reaction.emoji == reaction_emoji:
+            return reaction
+
+    return None
+
+
+def ignore_reaction_on_message_once(message_id):
+    ingore_message_reactions_once['add'].add(message_id)
+    ingore_message_reactions_once['remove'].add(message_id)
 
 
 bot = commands.Bot(command_prefix=select_command_prefix,
@@ -30,23 +65,35 @@ async def on_ready():
 
 @bot.event
 async def on_raw_reaction_add(payload):
+    if can_ignore_reaction(payload, 'add'):
+        return
+
     channel = await bot.fetch_channel(payload.channel_id)
     message = await channel.fetch_message(payload.message_id)
+
+    existing_reactions = get_reactions_from_message(message)
 
     if payload.emoji.name == reaction_emoji:
         if not message.pinned:
             await message.pin()
-        else:
-            pin_reaction = {
-                r.emoji: r for r in message.reactions
-            }.get(reaction_emoji)
 
-            if pin_reaction and pin_reaction.me:
+            if is_payload_from_bot(payload):
+                return
+
+            ignore_reaction_on_message_once(payload.message_id)
+            await message.add_reaction(reaction_emoji)
+            await message.remove_reaction(reaction_emoji, message.author)
+
+        else:
+            if existing_reactions and existing_reactions.me:
                 await message.remove_reaction(reaction_emoji, bot.user)
 
 
 @bot.event
 async def on_raw_reaction_remove(payload):
+    if can_ignore_reaction(payload, 'remove'):
+        return
+
     channel = await bot.fetch_channel(payload.channel_id)
     message = await channel.fetch_message(payload.message_id)
 
