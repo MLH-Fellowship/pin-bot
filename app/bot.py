@@ -71,6 +71,11 @@ async def on_raw_reaction_add(payload):
     channel = await bot.fetch_channel(payload.channel_id)
     message = await channel.fetch_message(payload.message_id)
 
+    if message.is_system():
+        await channel.send("Cannot pin system messages!")
+        await message.clear_reaction(reaction_emoji)
+        return
+
     existing_reactions = get_reactions_from_message(message)
 
     if payload.emoji.name == reaction_emoji:
