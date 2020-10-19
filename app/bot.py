@@ -17,6 +17,20 @@ ingore_message_reactions_once = {
 }
 
 
+class MessageOnExeption:
+    def __init__(self, channel, message='Something went wrong. Make sure your URL is correct and valid.'):
+        self.channel = channel
+        self.message = message
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, _exc_val, _traceback):
+        if exc_type:
+            await self.channel.send(self.message)
+        return True
+
+
 def select_command_prefix(_bot, message):
     return prefix_map.get(message.clean_content[0], '/')
 
@@ -71,27 +85,28 @@ async def on_raw_reaction_add(payload):
     channel = await bot.fetch_channel(payload.channel_id)
     message = await channel.fetch_message(payload.message_id)
 
-    if message.is_system():
-        await channel.send("Cannot pin system messages!")
-        await message.clear_reaction(reaction_emoji)
-        return
+    async with MessageOnExeption(channel):
+        if message.is_system():
+            await channel.send("Cannot pin system messages!")
+            await message.clear_reaction(reaction_emoji)
+            return
 
-    existing_reactions = get_reactions_from_message(message)
+        existing_reactions = get_reactions_from_message(message)
 
-    if payload.emoji.name == reaction_emoji:
-        if not message.pinned:
-            await message.pin()
+        if payload.emoji.name == reaction_emoji:
+            if not message.pinned:
+                await message.pin()
 
-            if is_payload_from_bot(payload):
-                return
+                if is_payload_from_bot(payload):
+                    return
 
-            ignore_reaction_on_message_once(payload.message_id)
-            await message.add_reaction(reaction_emoji)
-            await message.remove_reaction(reaction_emoji, message.author)
+                ignore_reaction_on_message_once(payload.message_id)
+                await message.add_reaction(reaction_emoji)
+                await message.remove_reaction(reaction_emoji, message.author)
 
-        else:
-            if existing_reactions and existing_reactions.me:
-                await message.remove_reaction(reaction_emoji, bot.user)
+            else:
+                if existing_reactions and existing_reactions.me:
+                    await message.remove_reaction(reaction_emoji, bot.user)
 
 
 @bot.event
@@ -102,15 +117,16 @@ async def on_raw_reaction_remove(payload):
     channel = await bot.fetch_channel(payload.channel_id)
     message = await channel.fetch_message(payload.message_id)
 
-    if payload.emoji.name == reaction_emoji and message.pinned:
-        await message.unpin()
-        await message.clear_reaction(reaction_emoji)
-        await channel.send("Unpinned!")
+    async with MessageOnExeption(channel):
+        if payload.emoji.name == reaction_emoji and message.pinned:
+            await message.unpin()
+            await message.clear_reaction(reaction_emoji)
+            await channel.send("Unpinned!")
 
 
 @bot.command(description="Pin a message. Argument: URL of the  message to be pinned or message itself", aliases=[reaction_emoji])
 async def pin(ctx):
-    try:
+    async with MessageOnExeption(ctx):
         message = await get_message_from_url(ctx)
         if not message:
             message = ctx.message
@@ -120,22 +136,17 @@ async def pin(ctx):
         else:
             # this will trigger on_raw_reaction_add to actually pin the message
             await message.add_reaction(reaction_emoji)
-    except Exception:
-        await ctx.send("Something went wrong. Make sure your URL is correct and valid.")
 
 
 @bot.command(description="Unpin a message. Argument: URL of message to be unpinned")
 async def unpin(ctx):
-    message = await get_message_from_url(ctx)
-
-    try:
+    async with MessageOnExeption(ctx):
+        message = await get_message_from_url(ctx)
         if message.pinned == False:
             await ctx.send("Message is not pinned")
         else:
             # this will trigger on_raw_reaction_remove to actually unpin the message
             await message.remove_reaction(reaction_emoji, bot.user)
-    except Exception:
-        await ctx.send("Something went wrong. Make sure your URL is correct and valid.")
 
 
 async def get_message_from_url(ctx):
